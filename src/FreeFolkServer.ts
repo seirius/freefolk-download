@@ -4,7 +4,7 @@ import { ServerConfig } from './config/ServerConfig';
 import { Logger } from '@overnightjs/logger';
 import { DefaultController } from './default/Default.controller';
 import { config as envConfig } from 'dotenv';
-import * as swagger from 'swagger-jsdoc';
+import swagger from 'swagger-jsdoc';
 import * as swaggerUi from 'swagger-ui-express';
 envConfig();
 
