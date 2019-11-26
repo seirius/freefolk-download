@@ -6,6 +6,18 @@ import { Catch } from "../error/ErrorDeco";
 @Controller('')
 export class DefaultController {
 
+    /**
+     * @swagger
+     * /ping:
+     *  get:
+     *      tags:
+     *          - default
+     *      produces:
+     *          - application/json
+     *      responses:
+     *          200:
+     *              description: "pong"
+     */
     @Get("ping")
     @Catch
     public ping(_req: Request, res: Response): void {
