@@ -19,14 +19,21 @@
   "dependencies": {
     "@overnightjs/core": "^1.6.9",
     "@overnightjs/logger": "^1.1.9",
+    "@types/form-data": "^2.5.0",
+    "@types/mime-types": "^2.1.0",
+    "aws-sdk": "^2.579.0",
+    "axios": "^0.19.0",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
     "env-var": "^5.2.0",
     "express": "^4.17.1",
+    "form-data": "^3.0.0",
     "http-status-codes": "^1.4.0",
+    "mime-types": "^2.1.25",
     "swagger-jsdoc": "^3.4.0",
     "swagger-ui-express": "^4.1.2",
-    "uuid": "^3.3.3"
+    "uuid": "^3.3.3",
+    "ytdl-core": "^1.0.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.2",

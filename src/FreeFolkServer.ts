@@ -5,6 +5,7 @@ import { Logger } from '@overnightjs/logger';
 import { DefaultController } from './default/Default.controller';
 import swagger from 'swagger-jsdoc';
 import * as swaggerUi from 'swagger-ui-express';
+import { DownloadController } from './download/Download.controller';
 
 export class FreeFolkServer extends Server {
 
@@ -27,6 +28,7 @@ export class FreeFolkServer extends Server {
         this.app.use(urlencoded({extended: true}));
         this.addControllers([
             new DefaultController(),
+            new DownloadController(),
         ]);
         this.app.use(
             '/swagger',
