@@ -4,7 +4,8 @@
   "description": "Freefolk nodejs microservice template",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker": "docker build -t freefolk-micro-template ."
   },
   "repository": {
     "type": "git",
