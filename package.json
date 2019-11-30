@@ -1,22 +1,22 @@
 {
-  "name": "freefolk-micro-template",
+  "name": "freefolk-download",
   "version": "1.0.0",
   "description": "Freefolk nodejs microservice template",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "docker": "docker build -t freefolk-micro-template ."
+    "docker": "docker build -t freefolk-download ."
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/seirius/freefolk-micro-template.git"
+    "url": "git+https://github.com/seirius/freefolk-download.git"
   },
   "author": "seirius",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/seirius/freefolk-micro-template/issues"
+    "url": "https://github.com/seirius/freefolk-download/issues"
   },
-  "homepage": "https://github.com/seirius/freefolk-micro-template#readme",
+  "homepage": "https://github.com/seirius/freefolk-download#readme",
   "dependencies": {
     "@overnightjs/core": "^1.6.9",
     "@overnightjs/logger": "^1.1.9",
