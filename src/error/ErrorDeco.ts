@@ -9,7 +9,7 @@ export function Catch(target: any, key: string, descriptor: TypedPropertyDescrip
         try {
             return await Reflect.apply(originalMethod, this, [req, res]);
         } catch (error) {
-            Logger.Err(error);
+            Logger.Err(error, true);
             let status = INTERNAL_SERVER_ERROR;
             if (error instanceof HttpError) {
                 status = error.statusCode;
