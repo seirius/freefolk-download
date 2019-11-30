@@ -13,10 +13,10 @@ import { Converter } from "../converter/Converter";
 @Controller("")
 export class DownloadController {
 
-    @Post("download")
+    @Get("download/:id")
     @Catch
     public async download(req: Request, res: Response): Promise<void> {
-        const { id } = req.body;
+        const { id } = req.params;
         const [video] = await Youtube.list({ids: [id]});
         const filename = Youtube.safeFilename(video.title) + ".mp4";
         res.setHeader("Content-disposition", "attachment; filename=" + filename);

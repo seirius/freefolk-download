@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { YoutubeConfig } from './YoutubeConfig';
+import { YoutubeConfig } from '../config/YoutubeConfig';
 import { OK } from 'http-status-codes';
 import { HttpError } from '../error/HttpError';
 
