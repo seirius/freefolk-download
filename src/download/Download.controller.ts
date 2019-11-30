@@ -13,12 +13,32 @@ import { Converter } from "../converter/Converter";
 @Controller("")
 export class DownloadController {
 
+    /**
+     * @swagger
+     * /download/{id}:
+     *  get:
+     *      tags:
+     *          - download
+     *      parameters:
+     *          - in: path
+     *            required: true
+     *            name: id
+     *            type: string
+     *      responses:
+     *          200:
+     *              description: ok
+     *              content:
+     *                  video/mp4:
+     *                      schema:
+     *                          type: string
+     *                          format: binary
+     */
     @Get("download/:id")
     @Catch
     public async download(req: Request, res: Response): Promise<void> {
         const { id } = req.params;
         const [video] = await Youtube.list({ids: [id]});
-        const filename = Youtube.safeFilename(video.title) + ".mp4";
+        const filename = `${video.title}.mp4`;
         res.setHeader("Content-disposition", "attachment; filename=" + filename);
         res.setHeader("x-suggested-filename", filename);
         res.setHeader("content-type", lookup(filename) || "application/octet-stream");
@@ -29,6 +49,21 @@ export class DownloadController {
         res.end();
     }
 
+    /**
+     * @swagger
+     * /start-download/{id}:
+     *  get:
+     *      tags:
+     *          - download
+     *      parameters:
+     *          - in: path
+     *            required: true
+     *            name: id
+     *            type: string
+     *      responses:
+     *          200:
+     *              description: ok
+     */
     @Get("start-download/:id")
     @Catch
     public async startDownload(req: Request, res: Response): Promise<void> {
@@ -53,6 +88,21 @@ export class DownloadController {
         }
     }
 
+    /**
+     * @swagger
+     * /start-download/audio/{id}:
+     *  get:
+     *      tags:
+     *          - download
+     *      parameters:
+     *          - in: path
+     *            required: true
+     *            name: id
+     *            type: string
+     *      responses:
+     *          200:
+     *              description: ok
+     */
     @Get("start-download/audio/:id")
     @Catch
     public async startDownloadAudio(req: Request, res: Response): Promise<void> {

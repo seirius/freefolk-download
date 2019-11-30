@@ -14,10 +14,6 @@ export class Youtube {
         return response.data.videos;
     }
 
-    public static safeFilename(oFilaname: string): string {
-        return oFilaname.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    }
-
 }
 
 export interface IYoutubeListArgs {
