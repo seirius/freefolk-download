@@ -15,7 +15,7 @@ export class FreeFolkServer extends Server {
 
     public async start(): Promise<void> {
         const specs = swagger({
-            apis: ['**/*.controller.ts'],
+            apis: ['**/*.controller.*'],
             swaggerDefinition: {
                 info: {
                     description: 'Theater API',
