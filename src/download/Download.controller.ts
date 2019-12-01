@@ -112,6 +112,9 @@ export class DownloadController {
     public async startDownloadAudio(req: Request, res: Response): Promise<void> {
         const { id } = req.params;
         const [video] = await Youtube.list({ids: [id]});
+        if (!video) {
+            throw new HttpError("Video not found", BAD_REQUEST);
+        }
         const filename = `${video.title}.mp3`;
         res.status(OK).json({filename});
         try {
