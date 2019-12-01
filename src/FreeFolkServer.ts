@@ -6,6 +6,7 @@ import { DefaultController } from './default/Default.controller';
 import swagger from 'swagger-jsdoc';
 import * as swaggerUi from 'swagger-ui-express';
 import { DownloadController } from './download/Download.controller';
+import { Download } from './download/Download';
 
 export class FreeFolkServer extends Server {
 
@@ -38,6 +39,7 @@ export class FreeFolkServer extends Server {
         this.app.listen(
             ServerConfig.PORT, 
             () => {
+                Download.startCron();
                 Logger.Info(`Server listenning at http://localhost:${ServerConfig.PORT}`, true);
                 Logger.Info(`Swagger at http://localhost:${ServerConfig.PORT}/swagger`, true);
             }

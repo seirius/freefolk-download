@@ -3,13 +3,14 @@ import { Request, Response } from "express";
 import { Download } from "./Download";
 import { Catch } from "../error/ErrorDeco";
 import { Youtube } from "../youtube/Youtube";
-import { OK, BAD_REQUEST } from "http-status-codes";
+import { OK, BAD_REQUEST, NOT_FOUND } from "http-status-codes";
 import { Logger } from "@overnightjs/logger";
 import { lookup } from "mime-types";
 import { PassThrough } from "stream";
 import { FileManager } from "../filemanager/FileManager";
 import { Converter } from "../converter/Converter";
 import { HttpError } from '../error/HttpError';
+import { Queue } from "../queue/Queue";
 
 @Controller("")
 export class DownloadController {
@@ -74,22 +75,71 @@ export class DownloadController {
             throw new HttpError("Video not found", BAD_REQUEST);
         }
         const filename = `${video.title}.mp4`;
+        await Queue.push({
+            name: "youtube",
+            payload: {
+                filename,
+                tags: ["mp4"],
+                id,
+                type: "mp4",
+                videoUrl: video.videoUrl
+            }
+        });
         res.status(OK).json({filename});
-        try {
-            const read = new PassThrough();
-            const promise = FileManager.upload({
-                id, tags: ["mp4"], file: read as any, filename
-            });
-            const write = new PassThrough();
-            write.pipe(read);
-            await Download.download({
-                videoUrl: video.videoUrl,
-                writeStream: write as any
-            });
-            await promise;
-        } catch(error) {
-            Logger.Err(error, true);
+    }
+
+    /**
+     * @swagger
+     * /start-download:
+     *  post:
+     *      tags:
+     *          - download
+     *      parameters:
+     *          - in: body
+     *            required: true
+     *            name: args
+     *            schema:
+     *              type: object
+     *              required:
+     *                  - ids
+     *              properties:
+     *                  ids:
+     *                      type: array
+     *                      items:
+     *                          type: string
+     *      responses:
+     *          200:
+     *              description: ok
+     *              schema:
+     *                  type: object
+     *                  properties:
+     *                      filename:
+     *                          type: array
+     *                          items:
+     *                              type: string
+     */
+    @Post("start-download")
+    @Catch
+    public async multipleStartDownload(req: Request, res: Response): Promise<void> {
+        const { ids } = req.body;
+        const videos = await Youtube.list({ids});
+        if (!videos.length) {
+            throw new HttpError("Videos not found", NOT_FOUND);
         }
+        const payload = videos.map(video => {
+            return {
+                filename: `${video.title}.mp4`,
+                tags: ["mp4"],
+                id: video.id,
+                type: "mp4",
+                videoUrl: video.videoUrl
+            };
+        });
+        await Queue.npush({
+            name: "youtube",
+            payload
+        });
+        res.status(OK).json({filename: payload.map((p) => p.filename)});
     }
 
     /**
@@ -116,22 +166,73 @@ export class DownloadController {
             throw new HttpError("Video not found", BAD_REQUEST);
         }
         const filename = `${video.title}.mp3`;
-        res.status(OK).json({filename});
-        try {
-            const read = new PassThrough();
-            const promise = Converter.convert({
-                id, tags: ["mp3"], file: read as any, filename: video.title, from: "mp4", format: "mp3"
-            });
-            const write = new PassThrough();
-            write.pipe(read);
-            await Download.download({
+        await Queue.push({
+            name: "youtube",
+            payload: {
+                filename,
+                tags: ["mp3"],
+                id,
+                type: "mp3",
                 videoUrl: video.videoUrl,
-                writeStream: write as any
-            });
-            await promise;
-        } catch(error) {
-            Logger.Err(error, true);
+                title: video.title,
+            }
+        });
+        res.status(OK).json({filename});
+    }
+
+    /**
+     * @swagger
+     * /start-download/audio:
+     *  post:
+     *      tags:
+     *          - download
+     *      parameters:
+     *          - in: body
+     *            required: true
+     *            name: args
+     *            schema:
+     *              type: object
+     *              required:
+     *                  - ids
+     *              properties:
+     *                  ids:
+     *                      type: array
+     *                      items:
+     *                          type: string
+     *      responses:
+     *          200:
+     *              description: ok
+     *              schema:
+     *                  type: object
+     *                  properties:
+     *                      filename:
+     *                          type: array
+     *                          items:
+     *                              type: string
+     */
+    @Post("start-download/audio")
+    @Catch
+    public async multipleStartDownloadAudio(req: Request, res: Response): Promise<void> {
+        const { ids } = req.body;
+        const videos = await Youtube.list({ids});
+        if (!videos.length) {
+            throw new HttpError("Videos not found", NOT_FOUND);
         }
+        const payload = videos.map(video => {
+            return {
+                filename: `${video.title}.mp3`,
+                tags: ["mp3"],
+                id: video.id,
+                type: "mp3",
+                videoUrl: video.videoUrl,
+                title: video.title
+            };
+        });
+        await Queue.npush({
+            name: "youtube",
+            payload
+        });
+        res.status(OK).json({filename: payload.map((p) => p.filename)});
     }
 
 }
