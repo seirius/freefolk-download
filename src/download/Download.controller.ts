@@ -3,12 +3,13 @@ import { Request, Response } from "express";
 import { Download } from "./Download";
 import { Catch } from "../error/ErrorDeco";
 import { Youtube } from "../youtube/Youtube";
-import { OK } from "http-status-codes";
+import { OK, BAD_REQUEST } from "http-status-codes";
 import { Logger } from "@overnightjs/logger";
 import { lookup } from "mime-types";
 import { PassThrough } from "stream";
 import { FileManager } from "../filemanager/FileManager";
 import { Converter } from "../converter/Converter";
+import { HttpError } from '../error/HttpError';
 
 @Controller("")
 export class DownloadController {
@@ -69,6 +70,9 @@ export class DownloadController {
     public async startDownload(req: Request, res: Response): Promise<void> {
         const { id } = req.params;
         const [video] = await Youtube.list({ids: [id]});
+        if (!video) {
+            throw new HttpError("Video not found", BAD_REQUEST);
+        }
         const filename = `${video.title}.mp4`;
         res.status(OK).json({filename});
         try {
