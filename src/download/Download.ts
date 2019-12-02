@@ -8,6 +8,7 @@ import { Logger } from "@overnightjs/logger";
 import { PassThrough } from "stream";
 import { FileManager } from "../filemanager/FileManager";
 import { Converter } from "../converter/Converter";
+import { QueueConfig } from "../config/QueueConfig";
 
 export class Download {
 
@@ -23,6 +24,10 @@ export class Download {
     }
 
     public static async startCron(): Promise<void> {
+        if (!QueueConfig.HOST) {
+            Logger.Info("Queue's HOST not defined, cron will be disabled");
+            return;
+        }
         Download.workerManager = new WorkerManager(BatchConfig.PARALLEL_NUMBER);
         let cronWorking = false;
         new CronJob(BatchConfig.CRON_INTERVAL, async () => {
