@@ -30,3 +30,11 @@
 | QUEUE_HOST  |  | Queue http address  |
 ---
 
+## Queue config
+| Name  | Default  | Description  |
+|---|---|---|
+| YOUTUBE_HOST  |  | Youtube url address (real)  |
+| YOUTUBE_ENDPOINT_HOST  |  | Youtube http address  |
+| YOUTUBE_ENDPOINT_LIST  |  | Path to the list endpoint  |
+---
+
