@@ -1,6 +1,6 @@
 ## Server config
 | Name  | Default  | Description  |
-|---|---|---|---|---|
+|---|---|---|
 | PORT  | 3000  | Http server port  |
 ---
 
