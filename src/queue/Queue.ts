@@ -19,7 +19,7 @@ export class Queue {
         try {
             response = await Axios.get(resolveUrl(QueueConfig.HOST, `pop/${name}`));
         } catch (error) {
-            if (error.response.status === NOT_FOUND) {
+            if (error.response && error.response.status === NOT_FOUND) {
                 return;
             } else {
                 throw error;
@@ -33,7 +33,7 @@ export class Queue {
         try {
             response = await Axios.get(resolveUrl(QueueConfig.HOST, `pop/${name}/${number}`));
         } catch (error) {
-            if (error.response.status === NOT_FOUND) {
+            if (error.response && error.response.status === NOT_FOUND) {
                 return;
             } else {
                 throw error;
