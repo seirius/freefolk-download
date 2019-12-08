@@ -4,11 +4,7 @@ import { Download } from "./Download";
 import { Catch } from "../error/ErrorDeco";
 import { Youtube } from "../youtube/Youtube";
 import { OK, BAD_REQUEST, NOT_FOUND } from "http-status-codes";
-import { Logger } from "@overnightjs/logger";
 import { lookup } from "mime-types";
-import { PassThrough } from "stream";
-import { FileManager } from "../filemanager/FileManager";
-import { Converter } from "../converter/Converter";
 import { HttpError } from '../error/HttpError';
 import { Queue } from "../queue/Queue";
 

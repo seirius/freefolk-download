@@ -46,9 +46,9 @@ export class Download {
                                     const read = new PassThrough();
                                     let promise: Promise<void>;
                                     if (type === "mp4") {
-                                            promise = FileManager.upload({
-                                                id, tags, file: read as any, filename
-                                            });
+                                        promise = FileManager.upload({
+                                            id, tags, file: read as any, filename
+                                        });
                                     } else if (type === "mp3") {
                                         const {title} = payload;
                                         promise = Converter.convert({
