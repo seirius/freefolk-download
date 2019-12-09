@@ -78,7 +78,9 @@ export class DownloadController {
                 tags: ["mp4"],
                 id,
                 type: "mp4",
-                videoUrl: video.videoUrl
+                thumbnailUrl: video.thumbnailUrl,
+                videoUrl: video.videoUrl,
+                author: video.author
             }
         });
         res.status(OK).json({filename});
@@ -128,7 +130,9 @@ export class DownloadController {
                 tags: ["mp4"],
                 id: video.id,
                 type: "mp4",
-                videoUrl: video.videoUrl
+                thumbnailUrl: video.thumbnailUrl,
+                videoUrl: video.videoUrl,
+                author: video.author
             };
         });
         await Queue.npush({
@@ -169,8 +173,10 @@ export class DownloadController {
                 tags: ["mp3"],
                 id,
                 type: "mp3",
+                thumbnailUrl: video.thumbnailUrl,
                 videoUrl: video.videoUrl,
                 title: video.title,
+                author: video.author
             }
         });
         res.status(OK).json({filename});
@@ -220,8 +226,10 @@ export class DownloadController {
                 tags: ["mp3"],
                 id: video.id,
                 type: "mp3",
+                thumbnailUrl: video.thumbnailUrl,
                 videoUrl: video.videoUrl,
-                title: video.title
+                title: video.title,
+                author: video.author
             };
         });
         await Queue.npush({

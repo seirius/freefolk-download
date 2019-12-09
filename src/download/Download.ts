@@ -42,17 +42,22 @@ export class Download {
                         response.payload.forEach((payload, index) => {
                             try{
                                 freeWorkers[index].run(async () => {
-                                    const {filename, tags, id, type, videoUrl} = payload;
+                                    const {filename, tags, id, type, videoUrl, title, author} = payload;
                                     const read = new PassThrough();
                                     let promise: Promise<void>;
                                     if (type === "mp4") {
                                         promise = FileManager.upload({
-                                            id, tags, file: read as any, filename
+                                            id, tags, file: read as any, filename,
                                         });
                                     } else if (type === "mp3") {
-                                        const {title} = payload;
-                                        promise = Converter.convert({
-                                            id, tags, file: read as any, filename: title, from: "mp4", format: "mp3"
+                                        const {thumbnailUrl} = payload;
+                                        promise = Converter.convertMp3Mp4({
+                                            id, tags, file: read as any, 
+                                            filename: title, imageUrl: thumbnailUrl, 
+                                            metadata: {
+                                                title,
+                                                artist: author
+                                            }
                                         });
                                     } else {
                                         throw new Error("Invalid payload type (Download -> Queue treatment)");

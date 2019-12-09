@@ -27,4 +27,5 @@ export interface IVideoItem {
     thumbnailUrl: string;
     duration: string;
     disabled: boolean;
+    author: string;
 }
