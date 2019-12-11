@@ -14,6 +14,14 @@ export class Youtube {
         return response.data.videos;
     }
 
+    public static async entirePlaylist(id: string): Promise<IVideoItem[]> {
+        const response = await axios.post(`${YoutubeConfig.YOUTUBE_ENDPOINT_HOST}/entire-playlist`, {id});
+        if (response.status !== OK) {
+            throw new HttpError(response.statusText, response.status);
+        }
+        return response.data.videos;
+    }
+
 }
 
 export interface IYoutubeListArgs {

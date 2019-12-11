@@ -98,13 +98,13 @@ export class DownloadController {
      *            name: args
      *            schema:
      *              type: object
-     *              required:
-     *                  - ids
      *              properties:
      *                  ids:
      *                      type: array
      *                      items:
      *                          type: string
+     *                  playlistId:
+     *                      type: string
      *      responses:
      *          200:
      *              description: ok
@@ -119,8 +119,8 @@ export class DownloadController {
     @Post("start-download")
     @Catch
     public async multipleStartDownload(req: Request, res: Response): Promise<void> {
-        const { ids } = req.body;
-        const videos = await Youtube.list({ids});
+        const { ids, playlistId } = req.body;
+        const videos = ids ? await Youtube.list({ids}) : await Youtube.entirePlaylist(playlistId);
         if (!videos.length) {
             throw new HttpError("Videos not found", NOT_FOUND);
         }
@@ -194,13 +194,13 @@ export class DownloadController {
      *            name: args
      *            schema:
      *              type: object
-     *              required:
-     *                  - ids
      *              properties:
      *                  ids:
      *                      type: array
      *                      items:
      *                          type: string
+     *                  playlistId:
+     *                      type: string
      *      responses:
      *          200:
      *              description: ok
@@ -215,8 +215,8 @@ export class DownloadController {
     @Post("start-download/audio")
     @Catch
     public async multipleStartDownloadAudio(req: Request, res: Response): Promise<void> {
-        const { ids } = req.body;
-        const videos = await Youtube.list({ids});
+        const { ids, playlistId } = req.body;
+        const videos = ids ? await Youtube.list({ids}) : await Youtube.entirePlaylist(playlistId);
         if (!videos.length) {
             throw new HttpError("Videos not found", NOT_FOUND);
         }
