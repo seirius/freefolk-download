@@ -1,5 +1,5 @@
-import * as env from 'env-var';
-import { config as envConfig } from 'dotenv';
+import * as env from "env-var";
+import { config as envConfig } from "dotenv";
 envConfig();
 
 export class ServerConfig {
