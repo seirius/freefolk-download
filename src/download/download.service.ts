@@ -20,7 +20,9 @@ export class DownloadService {
         private readonly queueService: QueueService,
         private readonly fileManagerService: FileManagerService,
         private readonly converterService: ConverterService
-    ) {}
+    ) {
+        this.startCron();
+    }
 
     public download({videoUrl, writeStream}: IDownloadArgs): Promise<void> {
         return new Promise(async (resolve, reject) => {
