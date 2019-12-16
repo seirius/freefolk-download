@@ -6,13 +6,15 @@ import { FileManagerModule } from "./../filemanager/filemanager.module";
 import { ConverterModule } from "./../converter/converter.module";
 import { DownloadController } from "./download.controller";
 import { YoutubeModule } from "./../youtube/youtube.module";
+import { MqttModule } from "nest-mqtt-client";
 
 @Module({
     imports: [
         YoutubeModule,
         QueueModule,
         FileManagerModule,
-        ConverterModule
+        ConverterModule,
+        MqttModule
     ],
     providers: [
         WorkerManagerService,

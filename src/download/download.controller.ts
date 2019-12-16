@@ -39,7 +39,8 @@ export class DownloadController {
         response.setHeader("content-type", lookup(filename) || "application/octet-stream");
         await this.downloadService.download({
             videoUrl: video.videoUrl,
-            writeStream: response as any
+            writeStream: response as any,
+            id
         });
         response.end();
     }

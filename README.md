@@ -38,6 +38,12 @@
 | YOUTUBE_ENDPOINT_LIST  |  | Path to the list endpoint  |
 ---
 
+## Mqtt config
+| Name  | Default  | Description  |
+|---|---|---|
+| MQTT_HOST  |  mqtt://localhost  | Mqtt host address |
+---
+
 
 ## Installation
 

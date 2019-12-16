@@ -9,6 +9,7 @@ import { QueueService } from "./../queue/queue.service";
 import { PassThrough } from "stream";
 import { FileManagerService } from "./../filemanager/filemanager.service";
 import { ConverterService } from "./../converter/converter.service";
+import { MqttService } from "nest-mqtt-client";
 
 @Injectable()
 export class DownloadService {
@@ -19,16 +20,26 @@ export class DownloadService {
         private readonly workerManager: WorkerManagerService,
         private readonly queueService: QueueService,
         private readonly fileManagerService: FileManagerService,
-        private readonly converterService: ConverterService
+        private readonly converterService: ConverterService,
+        private readonly mqttService: MqttService
     ) {
         this.startCron();
     }
 
-    public download({videoUrl, writeStream}: IDownloadArgs): Promise<void> {
+    public download({videoUrl, writeStream, id}: IDownloadArgs): Promise<void> {
         return new Promise(async (resolve, reject) => {
             const vid = ytdl(videoUrl);
             vid.pipe(writeStream);
             vid.on("response", (response) => response.on("end", resolve))
+            vid.on("progress", (chunk: number, downloaded: number, total: number) => {
+                this.mqttService.push({
+                    channel: "download",
+                    payload: {
+                        id,
+                        progress: downloaded / total * 100
+                    }
+                });
+            })
             .on("error", reject);
         });
     }
@@ -75,7 +86,8 @@ export class DownloadService {
                                     write.pipe(read);
                                     await this.download({
                                         videoUrl: videoUrl,
-                                        writeStream: write as any
+                                        writeStream: write as any,
+                                        id
                                     });
                                     await promise;
                                 });
@@ -96,6 +108,7 @@ export class DownloadService {
 }
 
 export interface IDownloadArgs {
+    id: string;
     videoUrl: string;
     writeStream: WriteStream;
 }
