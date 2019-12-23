@@ -26,19 +26,15 @@ export class DownloadService {
         this.startCron();
     }
 
-    public download({videoUrl, writeStream, id}: IDownloadArgs): Promise<void> {
+    public download({videoUrl, writeStream, id, onProgress}: IDownloadArgs): Promise<void> {
         return new Promise(async (resolve, reject) => {
             const vid = ytdl(videoUrl);
             vid.pipe(writeStream);
             vid.on("response", (response) => response.on("end", resolve))
             vid.on("progress", (chunk: number, downloaded: number, total: number) => {
-                this.mqttService.push({
-                    channel: "download",
-                    payload: {
-                        id,
-                        progress: downloaded / total * 100
-                    }
-                });
+                if (onProgress) {
+                    onProgress(downloaded / total * 100)
+                }
             })
             .on("error", reject);
         });
@@ -63,6 +59,14 @@ export class DownloadService {
                             try{
                                 freeWorkers[index].run(async () => {
                                     const {filename, tags, id, type, videoUrl, title, author} = payload;
+                                    this.mqttService.push({
+                                        channel: "download",
+                                        payload: {
+                                            id,
+                                            state: "init",
+                                            type,
+                                        },
+                                    });
                                     const read = new PassThrough();
                                     let promise: Promise<void>;
                                     if (type === "mp4") {
@@ -79,6 +83,16 @@ export class DownloadService {
                                                 artist: author
                                             }
                                         });
+                                        promise.then(() => {
+                                            this.mqttService.push({
+                                                channel: "convert",
+                                                payload: {
+                                                    id,
+                                                    state: "done",
+                                                    type,
+                                                },
+                                            });
+                                        });
                                     } else {
                                         throw new Error("Invalid payload type (Download -> Queue treatment)");
                                     }
@@ -87,7 +101,26 @@ export class DownloadService {
                                     await this.download({
                                         videoUrl: videoUrl,
                                         writeStream: write as any,
-                                        id
+                                        id,
+                                        onProgress: (progress) => {
+                                            this.mqttService.push({
+                                                channel: "download",
+                                                payload: {
+                                                    id,
+                                                    state: "progress",
+                                                    progress,
+                                                    type,
+                                                },
+                                            });
+                                        }
+                                    });
+                                    this.mqttService.push({
+                                        channel: "download",
+                                        payload: {
+                                            id,
+                                            state: "done",
+                                            type,
+                                        },
                                     });
                                     await promise;
                                 });
@@ -111,4 +144,5 @@ export interface IDownloadArgs {
     id: string;
     videoUrl: string;
     writeStream: WriteStream;
+    onProgress?: (progress: number) => void;
 }
