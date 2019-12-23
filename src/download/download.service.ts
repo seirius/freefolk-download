@@ -21,7 +21,7 @@ export class DownloadService {
         private readonly queueService: QueueService,
         private readonly fileManagerService: FileManagerService,
         private readonly converterService: ConverterService,
-        private readonly mqttService: MqttService
+        private readonly mqttService: MqttService,
     ) {
         this.startCron();
     }
@@ -30,10 +30,10 @@ export class DownloadService {
         return new Promise(async (resolve, reject) => {
             const vid = ytdl(videoUrl);
             vid.pipe(writeStream);
-            vid.on("response", (response) => response.on("end", resolve))
+            vid.on("response", (response) => response.on("end", resolve));
             vid.on("progress", (chunk: number, downloaded: number, total: number) => {
                 if (onProgress) {
-                    onProgress(downloaded / total * 100)
+                    onProgress(downloaded / total * 100);
                 }
             })
             .on("error", reject);
@@ -46,6 +46,7 @@ export class DownloadService {
             return;
         }
         let cronWorking = false;
+        // tslint:disable-next-line: no-unused-expression
         new CronJob(BatchConfig.CRON_INTERVAL, async () => {
             if (cronWorking) {
                 return;
@@ -56,7 +57,7 @@ export class DownloadService {
                     const response = await this.queueService.npop("youtube", freeWorkers.length);
                     if (response && response.payload.length) {
                         response.payload.forEach((payload, index) => {
-                            try{
+                            try {
                                 freeWorkers[index].run(async () => {
                                     const {filename, tags, id, type, videoUrl, title, author} = payload;
                                     this.mqttService.push({
@@ -76,12 +77,12 @@ export class DownloadService {
                                     } else if (type === "mp3") {
                                         const {thumbnailUrl} = payload;
                                         promise = this.converterService.convertMp3Mp4({
-                                            id, tags, file: read as any, 
-                                            filename: title, imageUrl: thumbnailUrl, 
+                                            id, tags, file: read as any,
+                                            filename: title, imageUrl: thumbnailUrl,
                                             metadata: {
                                                 title,
-                                                artist: author
-                                            }
+                                                artist: author,
+                                            },
                                         });
                                         promise.then(() => {
                                             this.mqttService.push({
@@ -99,7 +100,7 @@ export class DownloadService {
                                     const write = new PassThrough();
                                     write.pipe(read);
                                     await this.download({
-                                        videoUrl: videoUrl,
+                                        videoUrl,
                                         writeStream: write as any,
                                         id,
                                         onProgress: (progress) => {
@@ -112,7 +113,7 @@ export class DownloadService {
                                                     type,
                                                 },
                                             });
-                                        }
+                                        },
                                     });
                                     this.mqttService.push({
                                         channel: "download",
@@ -124,13 +125,13 @@ export class DownloadService {
                                     });
                                     await promise;
                                 });
-                            } catch(err) {
+                            } catch (err) {
                                 this.logger.error(err);
                             }
                         });
                     }
                 }
-            } catch(error) {
+            } catch (error) {
                 this.logger.error(error);
             } finally {
                 cronWorking = false;
