@@ -10,6 +10,7 @@ import { PassThrough } from "stream";
 import { FileManagerService } from "./../filemanager/filemanager.service";
 import { ConverterService } from "./../converter/converter.service";
 import { MqttService } from "nest-mqtt-client";
+import { EDownloadState } from "./download.dto";
 
 @Injectable()
 export class DownloadService {
@@ -60,70 +61,78 @@ export class DownloadService {
                             try {
                                 freeWorkers[index].run(async () => {
                                     const {filename, tags, id, type, videoUrl, title, author} = payload;
-                                    this.mqttService.push({
-                                        channel: "download",
-                                        payload: {
-                                            id,
-                                            state: "init",
-                                            type,
-                                        },
-                                    });
-                                    const read = new PassThrough();
-                                    let promise: Promise<void>;
-                                    if (type === "mp4") {
-                                        promise = this.fileManagerService.upload({
-                                            id, tags, file: read as any, filename,
-                                        });
-                                    } else if (type === "mp3") {
-                                        const {thumbnailUrl} = payload;
-                                        promise = this.converterService.convertMp3Mp4({
-                                            id, tags, file: read as any,
-                                            filename: title, imageUrl: thumbnailUrl,
-                                            metadata: {
-                                                title,
-                                                artist: author,
+                                    try {
+                                        this.mqttService.push({
+                                            channel: "progress",
+                                            payload: {
+                                                id,
+                                                state: EDownloadState.INIT,
+                                                type,
                                             },
                                         });
-                                        promise.then(() => {
+                                        const read = new PassThrough();
+                                        let promise: Promise<void>;
+                                        if (type === "mp4") {
                                             this.mqttService.push({
-                                                channel: "convert",
+                                                channel: "progress",
                                                 payload: {
                                                     id,
-                                                    state: "done",
+                                                    state: EDownloadState.DOWNLOADING,
                                                     type,
                                                 },
                                             });
-                                        });
-                                    } else {
-                                        throw new Error("Invalid payload type (Download -> Queue treatment)");
-                                    }
-                                    const write = new PassThrough();
-                                    write.pipe(read);
-                                    await this.download({
-                                        videoUrl,
-                                        writeStream: write as any,
-                                        id,
-                                        onProgress: (progress) => {
+                                            promise = this.fileManagerService.upload({
+                                                id, tags, file: read as any, filename,
+                                            });
+                                        } else if (type === "mp3") {
                                             this.mqttService.push({
-                                                channel: "download",
+                                                channel: "progress",
                                                 payload: {
                                                     id,
-                                                    state: "progress",
-                                                    progress,
+                                                    state: EDownloadState.CONVERTING,
                                                     type,
                                                 },
                                             });
-                                        },
-                                    });
-                                    this.mqttService.push({
-                                        channel: "download",
-                                        payload: {
+                                            const {thumbnailUrl} = payload;
+                                            promise = this.converterService.convertMp3Mp4({
+                                                id, tags, file: read as any,
+                                                filename: title, imageUrl: thumbnailUrl,
+                                                metadata: {
+                                                    title,
+                                                    artist: author,
+                                                },
+                                            });
+                                        } else {
+                                            throw new Error("Invalid payload type (Download -> Queue treatment)");
+                                        }
+                                        const write = new PassThrough();
+                                        write.pipe(read);
+                                        await this.download({
+                                            videoUrl,
+                                            writeStream: write as any,
                                             id,
-                                            state: "done",
-                                            type,
-                                        },
-                                    });
-                                    await promise;
+                                        });
+                                        await promise;
+                                        this.mqttService.push({
+                                            channel: "progress",
+                                            payload: {
+                                                id,
+                                                state: EDownloadState.END,
+                                                type,
+                                            },
+                                        });
+                                    } catch (workerError) {
+                                        this.logger.error(workerError);
+                                        this.mqttService.push({
+                                            channel: "progress",
+                                            payload: {
+                                                id,
+                                                state: EDownloadState.ERROR,
+                                                type,
+                                                errorMessage: workerError.message,
+                                            },
+                                        });
+                                    }
                                 });
                             } catch (err) {
                                 this.logger.error(err);

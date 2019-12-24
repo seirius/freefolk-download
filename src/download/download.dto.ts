@@ -41,3 +41,12 @@ export class MultipleStartDownloadAudioResponseDto {
     @ApiProperty({ type: [String] })
     filename: string[];
 }
+
+export enum EDownloadState {
+    STAND_BY = "stand_by",
+    INIT = "init",
+    DOWNLOADING = "downloading",
+    CONVERTING = "converting",
+    END = "end",
+    ERROR = "error"
+}

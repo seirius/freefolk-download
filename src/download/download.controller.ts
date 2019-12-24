@@ -6,7 +6,6 @@ import { lookup } from "mime-types";
 import { ApiOkResponse } from "@nestjs/swagger";
 import { QueueService } from "./../queue/queue.service";
 import { DownloadResponseDto, MultipleStartDownloadResponseDto, MultipleStartDownloadDto, StartDownloadAudioResponseDto, MultipleStartDownloadAudioDto, MultipleStartDownloadAudioResponseDto } from "./download.dto";
-import { MqttService } from "nest-mqtt-client";
 
 @Controller()
 export class DownloadController {
@@ -15,7 +14,6 @@ export class DownloadController {
         private readonly youtubeService: YoutubeService,
         private readonly downloadService: DownloadService,
         private readonly queueService: QueueService,
-        private readonly mqttService: MqttService,
     ) {}
 
     @Get("download/:id")
@@ -58,13 +56,6 @@ export class DownloadController {
             throw new HttpException("Video not found", HttpStatus.BAD_REQUEST);
         }
         const filename = `${video.title}.mp4`;
-        this.mqttService.push({
-            channel: "download",
-            payload: {
-                id,
-                state: "init",
-            },
-        });
         await this.queueService.push({
             name: "youtube",
             payload: {
@@ -95,13 +86,6 @@ export class DownloadController {
         }
         const payload = videos.map(video => {
             const filename = `${video.title}.mp4`;
-            this.mqttService.push({
-                channel: "download",
-                payload: {
-                    id: video.id,
-                    state: "init",
-                },
-            });
             return {
                 filename,
                 tags: ["mp4"],
