@@ -3,9 +3,12 @@ import { AppModule } from "./app.module";
 import { ServerConfig } from "./config/ServerConfig";
 import { Logger } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { LoggerConfig } from "./config/LoggerConfig";
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+        logger: LoggerConfig.LEVEL as any,
+    });
 
     const options = new DocumentBuilder()
     .setTitle("Freefolk microservice template")
