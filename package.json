@@ -2,7 +2,7 @@
   "name": "freefolk-download",
   "private": true,
   "version": "1.5.0",
-  "description": "Freefolk microservice template",
+  "description": "Freefolk download",
   "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
