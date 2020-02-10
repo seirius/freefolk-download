@@ -11,4 +11,4 @@ RUN npm install && npm install -g @nestjs/cli && nest build
 
 EXPOSE 3000/tcp
 
-ENTRYPOINT ["npm", "run", "start:prod"]
+ENTRYPOINT ["node", "dist/main"]
