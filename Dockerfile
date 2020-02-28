@@ -11,7 +11,7 @@ RUN nest build
 
 FROM node:12.13.1-alpine
 WORKDIR /usr/src/app
-COPY --from=build /usr/src/app/dist /usr/src/app/dist
 COPY --from=build /usr/src/app/node_modules /usr/src/app/node_modules
+COPY --from=build /usr/src/app/dist /usr/src/app/dist
 EXPOSE 3000/tcp
 ENTRYPOINT ["node", "dist/main"]
