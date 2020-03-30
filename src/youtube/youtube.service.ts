@@ -7,7 +7,9 @@ export class YoutubeService {
 
     public async list({ids}: IYoutubeListArgs): Promise<IVideoItem[]> {
         const { YOUTUBE_ENDPOINT_HOST, YOUTUBE_ENDPOINT_LIST } = YoutubeConfig;
-        const response = await Axios.post(`${YOUTUBE_ENDPOINT_HOST}/${YOUTUBE_ENDPOINT_LIST}`, {ids});
+        const response = await Axios.get(`${YOUTUBE_ENDPOINT_HOST}/${YOUTUBE_ENDPOINT_LIST}`, {
+            params: {id: ids},
+        });
         if (response.status !== HttpStatus.OK) {
             throw new HttpException(response.statusText, response.status);
         }
@@ -15,7 +17,9 @@ export class YoutubeService {
     }
 
     public async entirePlaylist(id: string): Promise<IVideoItem[]> {
-        const response = await Axios.post(`${YoutubeConfig.YOUTUBE_ENDPOINT_HOST}/entire-playlist`, {id});
+        const response = await Axios.get(`${YoutubeConfig.YOUTUBE_ENDPOINT_HOST}/entire-playlist`, {
+            params: {id},
+        });
         if (response.status !== HttpStatus.OK) {
             throw new HttpException(response.statusText, response.status);
         }

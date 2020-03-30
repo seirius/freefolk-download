@@ -2,11 +2,10 @@ import { Injectable, Logger } from "@nestjs/common";
 import { WorkerManagerService } from "./worker-manager.service";
 import { QueueConfig } from "./../config/QueueConfig";
 import ytdl from "ytdl-core";
-import { WriteStream } from "fs";
 import { BatchConfig } from "./../config/BatchConfig";
 import { CronJob } from "cron";
 import { QueueService } from "./../queue/queue.service";
-import { PassThrough } from "stream";
+import { PassThrough, Writable } from "stream";
 import { FileManagerService } from "./../filemanager/filemanager.service";
 import { ConverterService } from "./../converter/converter.service";
 import { MqttService } from "nest-mqtt-client";
@@ -31,7 +30,10 @@ export class DownloadService {
         return new Promise(async (resolve, reject) => {
             const vid = ytdl(videoUrl);
             vid.pipe(writeStream);
-            vid.on("response", (response) => response.on("end", resolve));
+            vid.on("response", (response) => {
+                response.on("error", reject);
+                response.on("end", resolve);
+            });
             vid.on("progress", (chunk: number, downloaded: number, total: number) => {
                 if (onProgress) {
                     onProgress(downloaded / total * 100);
@@ -153,6 +155,6 @@ export class DownloadService {
 export interface IDownloadArgs {
     id: string;
     videoUrl: string;
-    writeStream: WriteStream;
+    writeStream: Writable;
     onProgress?: (progress: number) => void;
 }
