@@ -28,7 +28,9 @@ export class DownloadService {
 
     public download({videoUrl, writeStream, id, onProgress}: IDownloadArgs): Promise<void> {
         return new Promise(async (resolve, reject) => {
-            const vid = ytdl(videoUrl);
+            const vid = ytdl(videoUrl, {
+                quality: "highest"
+            });
             vid.pipe(writeStream);
             vid.on("response", (response) => {
                 response.on("error", reject);
